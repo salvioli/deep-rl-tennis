@@ -102,3 +102,10 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# project specific
+sessions/
+checkpoints/
+config/
+unity-environment.log
+resources/
