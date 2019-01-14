@@ -298,6 +298,44 @@ if __name__ == '__main__':
 
         else:
             raise (ValueError, f"Unknown parameter{args[0]}")
+    elif command == "demo":
+        try:
+            checkpoint_path = args[0]
+            conf = JobConfig(checkpoint_path + "config.yml")
+
+            env = UnityEnvironment(file_name="./resources/Tennis_Linux/Tennis.x86_64")
+            brain_name = env.brain_names[0]
+            brain = env.brains[brain_name]
+
+            env_info = env.reset(train_mode=False)[brain_name]
+            num_agents = len(env_info.agents)
+            action_size = brain.vector_action_space_size
+
+            states = env_info.vector_observations
+            state_size = states.shape[1]
+
+            agent = DDPGAgent(state_size, action_size,
+                              conf.random_seed,
+                              conf.buffer_size,
+                              conf.batch_size,
+                              conf.gamma,
+                              conf.tau,
+                              conf.lr_actor,
+                              conf.lr_critic,
+                              conf.weight_decay,
+                              conf.sigma,
+                              conf.actor_nn_size,
+                              conf.critic_nn_size,
+                              conf.batch_norm,
+                              conf.clip_grad_norm)
+
+            agent.load_weights(actor_weights_file=checkpoint_path + "checkpoint_actor.pth",
+                               critic_weights_file=checkpoint_path + "checkpoint_critic.pth")
+
+            demo(agent, env, num_episodes=100)
+
+        finally:
+            env.close()
 
     else:
         raise(ValueError, f"Unknown command {command}")
