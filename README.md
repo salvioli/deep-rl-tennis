@@ -32,13 +32,44 @@ The task is considered solved if the two agents receive at least a collective sc
 The task is episodic.
 
 ## Code description
-*TODO*
+The code is organized mainly in the following files:
+- tennis.py: this high level file includes the high level functions of this project. In addition to gluing everything together it include implementation of the multi agent training algorithm.
+- ddpg_agent.py: this file includes the implementation of a ddpg agent.
+- config.py: this file simply includes the definition of a configuration file for a training job.
+- model.py: this file includes the implementation of the neural networks used by the ddpg_agent.py for the actor and the critic.
+- Report.ipynb: this file includes:
+    - an introduction to the environment and task
+    - the code that trains the agents
+    - the demonstration of the trained agents playing tennis
 
 ## Getting Started
 ### Prerequisites
 A working python 3 environment is required. You can easily setup one installing [anaconda] (https://www.anaconda.com/download/)
 
 ### Installation and execution
+Installation can be performed either installing directly in the OS or via docker. Please note that the docker image does
+not include a jupyter server installation therefore it only executes the training job.
+
+#### Docker
+Make sure that your system has [docker](https://docs.docker.com/install/) installed and build the docker image from the
+same folder of the Dockerfile:
+```bash
+docker build --tag=deep-rl-tennis .
+
+```
+Run the container as follows:
+```bash
+docker run -v <configuration_file_in_host>:/deep-rl-tennis/config.yml:ro \
+[-v <host_checkpoints_directory>:/deep-rl-tennis/checkpoints/:rw] \
+[-v <host_sessions_directory>:/deep-rl-tennis/sessions/:rw] -it deep-rl-tennis
+
+```
+This command will run the container and will provide the configuration file that you provide in <configuration_file_in_host>.
+Additionally, if mounted, the output of the training job will be serialized in a folder that the container will create inside the <host_checkpoints_directory> that you provide.
+The <host_sessions_directory> folder, if mounted, will be storing the temporary best result obtained during the training session.
+For more info on the content of the folder have a look at the code in tennis.py at function `save_state`.
+
+#### Standard
 If you are using anaconda is suggested to create a new environment as follows:
 ```bash
 conda create --name tennis python=3.6
@@ -63,7 +94,6 @@ python jupyter-notebook --no-browser --ip 127.0.0.1 --port 8888 --port-retries=0
     (_For AWS_) If you'd like to train the agent on AWS (and have not [enabled a virtual screen](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Training-on-Amazon-Web-Service.md)), then please use [this link](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P3/Tennis/Tennis_Linux_NoVis.zip) to obtain the "headless" version of the environment.  You will **not** be able to watch the agent without enabling a virtual screen, but you will be able to train the agent.  (_To watch the agent, you should follow the instructions to [enable a virtual screen](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Training-on-Amazon-Web-Service.md), and then download the environment for the **Linux** operating system above._)
 
 1. Decompress the archive at your preferred location (e.g. in this repository working copy).
-1. Open Report.ipynb notebook 
+1. Open Report.ipynb notebook
 1. Write your path to the pre-compiled unity environment executable as indicated in the notebook.
-1. Follow the instructions in `Tennis.ipynb` to get an environment introduction and to see two random agents playing tennis.
-1. **TODO**
+1. Follow the instructions in `Report.ipynb` to get an environment introduction and to see my proposed solution to the task.
