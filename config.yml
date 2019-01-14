@@ -17,3 +17,4 @@ score_window_size: 100
 sigma: 0.1
 tau: 0.001
 weight_decay: 0
+render_game: False
