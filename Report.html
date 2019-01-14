@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>Report3</title>
+<title>Report</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13409,7 +13409,19 @@ The state for the first agent looks like: [ 0.          0.          0.          
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Solution---shadow-agent">Solution - shadow agent<a class="anchor-link" href="#Solution---shadow-agent">&#182;</a></h2><p>We try to solve the task using an algorithm which trains a DDPG agent which plays against its best version of itself. The following cell creates the agent and launches the training algorithm from the tennis.py file.</p>
+<h2 id="Solution---shadow-agent">Solution - shadow agent<a class="anchor-link" href="#Solution---shadow-agent">&#182;</a></h2><p>We try to solve the task using an algorithm which trains a DDPG agent <a href="https://arxiv.org/pdf/1509.02971.pdf">[1]</a> which plays against its best version of itself. This is possible as the task is fully collaborative and the two agents are learning the same subtask: send the ball to the opponent. Effectively one agent is a classic DDPG agent while the second agent is updated with a clone of the first whenever the first average score (for 100 episodes) reaches historical maximum.</p>
+<p>The DDPG algorigthm includes the following variations with respect to the original proposed version in the paper:</p>
+<ul>
+<li>Gradient norm clipping: the algorithm includes a norm clipping to the update of the critic local network during training</li>
+<li>Exploration noise damping: the OU process providing exploratory noise is decreased proportionally to the difference between the obtained score and a score of 40 (higher than 30 to maintain a certain degree of exploration)</li>
+</ul>
+<p>Both variations can be enabled/disabled via the corresponding parameters. These are respectively <code>clip_grad_norm</code> passed to <code>DDPGAgent</code> constructor and <code>damp_exploration_noise</code> passed to the function <code>train</code>.</p>
+<h3 id="Neural-networks-architectures">Neural networks architectures<a class="anchor-link" href="#Neural-networks-architectures">&#182;</a></h3><p>To solve the task 8 neural networks were used. 4 identical networks were used to implement the local and target neural network for the two actors (2 per agent) and other 4 for the critics (2 per agent). All units used are rectified linear units except for the output units of the actor and the critic.</p>
+<p>The actor neural network is made of 2 fully connected hidden layers and has a tanh output to limit the actions values to the [-1,1] range as per task definition. When activated the inputs of the 2 fully connected layers are fed to a batch normalization layer. Network hidden layers both have 128 units.</p>
+<p>state [-&gt; batch_norm] -&gt; fc(128) [-&gt; batch_norm] -&gt; fc(128) -&gt; fc with tanh units (4) -&gt; actions</p>
+<p>The critic is made of 2 fully connected hidden layers and, as proposed in the ddpg paper, the action vector is fed in the second layer.</p>
+<p>state [-&gt; batch_norm] -&gt; fc(128) + actions -&gt; fc(128) -&gt; fc with linear units (1) -&gt; value</p>
+<p>The following cell creates the agent and launches the training algorithm from the tennis.py file.</p>
 
 </div>
 </div>
@@ -13437,7 +13449,7 @@ The state for the first agent looks like: [ 0.          0.          0.          
 <span class="sd">clip_grad_norm    (bool):   flag to control the use of critic backprop updated gradient clipping</span>
 <span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
-<p>To solve this environment the values chosen are listed in the following cell.</p>
+<p>The values chosen to solve this environment are listed in the following cell as arguments of the DDPGAgent constructor.</p>
 
 </div>
 </div>
@@ -13647,7 +13659,7 @@ Episode 4999	Average Score: 0.18	Episode duration 13.19
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">demo</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">num_episodes</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
@@ -13668,7 +13680,7 @@ Episode 4999	Average Score: 0.18	Episode duration 13.19
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">env</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -13678,6 +13690,22 @@ Episode 4999	Average Score: 0.18	Episode duration 13.19
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Future-improvements">Future improvements<a class="anchor-link" href="#Future-improvements">&#182;</a></h3><p>The following future improvements should be implemented:</p>
+<ul>
+<li>Test new algorithms such as A2C, A3C, PPO, TRPO instead of DDPG etc...</li>
+<li>Implement a prioritized replay buffer for the critic</li>
+<li>Implement the MADDPG algorithm</li>
+<li>Implement GAE to train the critic</li>
+<li>Try to solve the soccer task</li>
+<li>Optimize hyperparameters further on using, for instance, random sampling</li>
+</ul>
+
+</div>
+</div>
 </div>
     </div>
   </div>
