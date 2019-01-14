@@ -89,7 +89,7 @@ def train(agent, env, n_episodes=1000, score_window_size=100, print_every=50,
                         np.mean(all_episodes_durations[-score_window_size:]))
 
         if np.mean(scores_deque) >= max_score and not task_solved:
-            print(f'\nTask solved in {i_episode} episodes\tAverage Score: {np.mean(scores_deque):.2f}')
+            print(f'\rTask solved in {i_episode} episodes\tAverage Score: {np.mean(scores_deque):.2f}')
             task_solved = True
         elif i_episode == n_episodes:
             print('')
@@ -99,7 +99,8 @@ def train(agent, env, n_episodes=1000, score_window_size=100, print_every=50,
             print(message, end="")
 
     save_path = generate_final_session_path(agent, all_avg_scores)
-    save_state(agent, all_avg_scores, all_scores, all_std, all_episodes_durations, save_path)
+    # we save the top performing agent and the rest of the training info
+    save_state(shadow_agent, all_avg_scores, all_scores, all_std, all_episodes_durations, save_path)
 
     return all_scores, all_avg_scores, all_std, save_path
 
